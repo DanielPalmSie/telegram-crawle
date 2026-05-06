@@ -45,9 +45,12 @@ jobs:
             cd "$APP_DIR"
 
             if [ ! -f "$APP_DIR/.env" ]; then
-              echo "Missing /srv/telegram-crawler/.env. Create it from .env.example with production secrets."
+              cp "$APP_DIR/.env.example" "$APP_DIR/.env"
+              echo "Created .env from .env.example. Please update /srv/telegram-crawler/.env with production secrets."
               exit 1
             fi
+
+            bash "$APP_DIR/scripts/validate-env.sh" "$APP_DIR/.env"
 
             docker compose build telegram-crawler
             docker compose up -d telegram-crawler

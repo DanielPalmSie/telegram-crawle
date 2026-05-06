@@ -18,10 +18,11 @@ Required variables:
 
 ```sh
 DATABASE_URL=postgresql://USER:PASSWORD@matching-db:5432/DB_NAME
-TELEGRAM_API_ID=
-TELEGRAM_API_HASH=
+TELEGRAM_API_ID=CHANGE_ME
+TELEGRAM_API_HASH=CHANGE_ME
 TELEGRAM_SESSION_NAME=telegram-crawler
-OPENAI_API_KEY=
+OPENAI_API_KEY=CHANGE_ME
+OPENAI_MODEL=gpt-4.1-mini
 CRAWLER_KEYWORDS=помощь в Германии,жизнь в Германии,вопросы Германия,expats germany,life in germany,moving to germany
 CRAWLER_INTERVAL_SECONDS=1800
 LOG_LEVEL=INFO
@@ -71,6 +72,24 @@ The server must have a production `.env` file at:
 ```sh
 /srv/telegram-crawler/.env
 ```
+
+On first deployment, the workflow may create `/srv/telegram-crawler/.env` from `.env.example` and fail intentionally. SSH into the server, edit the generated file, fill in real production values, then re-run GitHub Actions or push again:
+
+```sh
+ssh root@46.224.91.140
+nano /srv/telegram-crawler/.env
+```
+
+Fill real values for:
+
+```sh
+DATABASE_URL
+TELEGRAM_API_ID
+TELEGRAM_API_HASH
+OPENAI_API_KEY
+```
+
+`.env.example` contains only placeholders/defaults and is safe to commit. `.env` contains real secrets and must never be committed.
 
 Every push to `main` runs the GitHub Actions workflow, SSHes into the server, updates only this repository in `/srv/telegram-crawler`, rebuilds the `telegram-crawler` image, and restarts only the `matching-telegram-crawler` container.
 
