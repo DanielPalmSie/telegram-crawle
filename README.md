@@ -94,3 +94,4 @@ OPENAI_API_KEY
 Every push to `main` runs the GitHub Actions workflow, SSHes into the server, updates only this repository in `/srv/telegram-crawler`, rebuilds the `telegram-crawler` image, and restarts only the `matching-telegram-crawler` container.
 
 The deployment does not restart or modify the Symfony app, PostgreSQL container, or any `matching-service` containers.
+//
