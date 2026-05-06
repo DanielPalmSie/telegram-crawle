@@ -1,9 +1,11 @@
-.idea/
+.git
+.github
+.env
+.idea
 __pycache__/
 *.pyc
-.env
 .venv/
 venv/
-.telethon.session*
 *.session
 *.session-journal
+README.md

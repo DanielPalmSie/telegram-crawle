@@ -1,0 +1,56 @@
+name: Deploy Telegram Crawler
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            set -eu
+
+            APP_DIR=/srv/telegram-crawler
+            REPO=git@github.com:DanielPalmSie/telegram-crawle.git
+
+            mkdir -p "$APP_DIR"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              if [ -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+                echo "$APP_DIR exists but is not a git checkout. Move it aside or initialize it before deploying."
+                exit 1
+              fi
+
+              git clone "$REPO" "$APP_DIR"
+            else
+              cd "$APP_DIR"
+              git fetch origin main
+              git reset --hard origin/main
+            fi
+
+            cd "$APP_DIR"
+
+            if [ ! -f "$APP_DIR/.env" ]; then
+              echo "Missing /srv/telegram-crawler/.env. Create it from .env.example with production secrets."
+              exit 1
+            fi
+
+            docker compose build telegram-crawler
+            docker compose up -d telegram-crawler
+
+            docker ps --filter name=matching-telegram-crawler
+            docker logs --tail=100 matching-telegram-crawler

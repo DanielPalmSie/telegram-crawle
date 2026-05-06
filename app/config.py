@@ -36,7 +36,7 @@ class Settings:
     keywords: list[str]
     log_level: str
     openai_model: str
-    crawler_interval_minutes: int
+    crawler_interval_seconds: int
     crawler_search_limit: int
     crawler_message_sample_limit: int
     telegram_request_delay_seconds: float
@@ -66,6 +66,8 @@ class Settings:
         if not keywords:
             raise ValueError("CRAWLER_KEYWORDS must include at least one keyword")
 
+        telegram_session_name = os.getenv("TELEGRAM_SESSION_NAME", "telegram-crawler")
+
         return cls(
             telegram_api_id=_get_int("TELEGRAM_API_ID", 0),
             telegram_api_hash=os.environ["TELEGRAM_API_HASH"],
@@ -74,7 +76,10 @@ class Settings:
             keywords=keywords,
             log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
             openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            crawler_interval_minutes=_get_int("CRAWLER_INTERVAL_MINUTES", 60),
+            crawler_interval_seconds=_get_int(
+                "CRAWLER_INTERVAL_SECONDS",
+                _get_int("CRAWLER_INTERVAL_MINUTES", 60) * 60,
+            ),
             crawler_search_limit=_get_int("CRAWLER_SEARCH_LIMIT", 20),
             crawler_message_sample_limit=_get_int("CRAWLER_MESSAGE_SAMPLE_LIMIT", 5),
             telegram_request_delay_seconds=_get_float("TELEGRAM_REQUEST_DELAY_SECONDS", 3.0),
@@ -82,7 +87,7 @@ class Settings:
             telegram_session=os.getenv("TELEGRAM_SESSION") or None,
             telegram_session_file=os.getenv(
                 "TELEGRAM_SESSION_FILE",
-                str(Path.cwd() / "session" / "telegram-crawler"),
+                str(Path.cwd() / "session" / telegram_session_name),
             ),
         )
 

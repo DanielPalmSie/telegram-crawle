@@ -1,0 +1,18 @@
+services:
+  telegram-crawler:
+    container_name: matching-telegram-crawler
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - telegram_crawler_session:/app/session
+    networks:
+      - matching-service_default
+
+volumes:
+  telegram_crawler_session:
+
+networks:
+  matching-service_default:
+    external: true
